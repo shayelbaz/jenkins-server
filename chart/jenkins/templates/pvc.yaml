@@ -1,0 +1,25 @@
+{{- if and .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.persistence.volumeClaimName }}
+spec:
+{{- if eq .Values.persistence.type "local" }}
+  storageClassName: {{ .Values.persistence.local.storageClassName }}
+ {{- else if eq .Values.persistence.type "nfs" }}
+  storageClassName: {{ .Values.persistence.nfs.storageClassName }} 
+{{- end }}
+  accessModes:
+{{- if eq .Values.persistence.type "local" }}
+    {{ .Values.persistence.local.accessModes }} 
+{{- else if eq .Values.persistence.type "nfs" }}
+    {{ .Values.persistence.nfs.accessModes }} 
+{{- end }}
+  resources:
+    requests:
+    {{- if eq .Values.persistence.type "local" }}
+      storage: {{ .Values.persistence.nfs.capacity.storage | squote }} 
+    {{- else if eq .Values.persistence.type "nfs" }}
+      storage: {{ .Values.persistence.nfs.capacity.storage | squote }} 
+    {{- end }}
+{{- end }}

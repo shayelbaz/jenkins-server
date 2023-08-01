@@ -9,6 +9,7 @@ fullnameOverride: jenkins-chart
 
 serviceAccountName: jenkins-sa
 clusterRoleName: jenkins-role
+
 jenkinsImage: jenkins/jenkins:2.401.3-lts-alpine
 imagePullPolicy: IfNotPresent
 javaOpts: "-Xmx2048m -Dhudson.slaves.NodeProvisioner.MARGIN=50 -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85"
@@ -36,7 +37,7 @@ readinessProbe:
   failureThreshold: 3
 
 volumeMountPath: /var/jenkins_home
-persistentVolumeClaimName: "jenkins-claim-v2"
+
 
 terminationGracePeriodSeconds: 30
 
@@ -48,4 +49,47 @@ resources:
     cpu: "1000m"
     memory: "2Gi"
 
+
+persistence:
+  enabled: true 
+  volumeName: jenkins
+  volumeClaimName: "jenkins-claim"
+  type: local
+
+  nfs:
+    storageClassName: efs-sc
+    capacity:
+      storage: 5Gi
+    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteMany
+    persistentVolumeReclaimPolicy: Retain
+    csi:
+      driver: efs.csi.aws.com
+      volumeHandle: fs-087fd49e4e6612df0
+
+  local:
+    storageClassName: manual
+    capacity:
+      storage: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    hostPath:
+      path: "/mnt/data"
+
+
+  # # type: local
+  # storageClass: efs-sc
+  # # storageClass: manual
+
+  # size: "5Gi"
+  # volumeMode: Filesystem
+  # # accessMode: ReadWriteOnce
+  # accessMode: ReadWriteMany
+  
+  # csi:
+  #   driver: efs.csi.aws.com
+  #   volumeHandle: fs-087fd49e4e6612df0
+  
+  # persistentVolumeReclaimPolicy: Retain
 

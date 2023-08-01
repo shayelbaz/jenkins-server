@@ -1,15 +1,25 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "jenkins.fullname" . }}
+  name: {{ template "jenkins.fullname" . }}
   labels:
-    {{- include "jenkins.labels" . | nindent 4 }}
+    app: {{ template "jenkins.fullname" . }}
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/path:   /
+      prometheus.io/port:   '{{ .Values.service.httpPort }}'
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - name: ui
+      port: {{ .Values.service.httpPort }}
+      targetPort: {{ .Values.service.httpPort }}
       protocol: TCP
-      name: http
+    - name: slave
+      port: {{ .Values.service.jnlpPort }}
+      protocol: TCP
+    - name: http
+      port: 80
+      targetPort: {{ .Values.service.httpPort }}
   selector:
-    {{- include "jenkins.selectorLabels" . | nindent 4 }}
+    app: {{ template "jenkins.fullname" . }}

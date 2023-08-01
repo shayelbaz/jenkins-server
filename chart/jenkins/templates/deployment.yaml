@@ -1,61 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "jenkins.fullname" . }}
+  name: {{ template "jenkins.fullname" . }}
   labels:
     {{- include "jenkins.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "jenkins.selectorLabels" . | nindent 6 }}
+      app: {{ template "jenkins.fullname" . }}
+  replicas: {{ .Values.replicas | default 1 }}
+  strategy:
+{{- toYaml .Values.strategy | nindent 4 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "jenkins.selectorLabels" . | nindent 8 }}
+        app: {{ template "jenkins.fullname" . }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "jenkins.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+      - name: jenkins
+        image: {{ .Values.jenkinsImage | default "jenkins/jenkins:2.401.3-lts-alpine" }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" }}
+        {{- if .Values.javaOpts }}
+        env:
+        - name: JAVA_OPTS
+          value: "{{ .Values.javaOpts }}"
+        {{- end }}
+        ports:
+        - name: httpport
+          containerPort: {{ .Values.service.httpPort | default 8080 }}
+        - name: jnlpport
+          containerPort: {{ .Values.service.jnlpPort | default 50000 }}
+        livenessProbe: 
+     {{- toYaml .Values.livenessProbe | nindent 10 }}
+        readinessProbe: 
+     {{- toYaml .Values.readinessProbe | nindent 10 }}
+        resources: 
+     {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: {{ .Values.volumeMountPath }}
+          name: jenkins
+      securityContext:
+        runAsUser: 0
+      restartPolicy: Always
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      volumes:
+      - name: jenkins
+        # emptyDir: {}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistentVolumeClaimName }}

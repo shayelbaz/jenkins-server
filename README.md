@@ -33,7 +33,8 @@ helm install my-release ./chart/jenkins --set persistence.enabled=true --set per
 
 ## Create a EKS cluster
 
-provision your private EKS Cluster [please refere to my Terraform code](subpro/subtext.md)
+provision your private EKS Cluster
+please refere to my Terraform code [here](aws-eks)
 
 ## Setup our EFS Cloud Storage 
 

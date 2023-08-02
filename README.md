@@ -31,6 +31,13 @@ helm install my-release ./chart/jenkins --set persistence.enabled=true --set per
 
 ## Runnign in EKS cluster with persistence
 
+## Prerequisites
+
+- Kubernetes 1.19+
+- Helm 3.0+
+- PV provisioner support in the underlying infrastructure
+- ReadWriteMany volumes for deployment scaling
+
 ## Create a EKS cluster
 
 provision your private EKS Cluster

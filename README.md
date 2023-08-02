@@ -26,7 +26,7 @@ helm install my-release ./chart/jenkins --set persistence.enabled=false
 ## Deploy release in local
 
 ```console
-helm install my-release ./chart/jenkins --set persistence.enabled=true --set persistence.enabled=true --set persistence.type=local
+helm install my-release ./chart/jenkins --set persistence.enabled=true --set persistence.type=local
 ```
 
 ## Runnign in EKS cluster with persistence
@@ -78,6 +78,6 @@ More details about EKS storage [here](https://aws.amazon.com/premiumsupport/know
 ## Deploy release in EKS
 
 ```console
-helm install my-release ./chart/jenkins --set persistence.enabled=true --set persistence.enabled=true --set persistence.type=nfs --set persistence.nfs.csi.volumeHandle=$EFS
+helm install my-release ./chart/jenkins --set persistence.enabled=true --set persistence.type=nfs --set persistence.nfs.csi.volumeHandle=$EFS
 ```
 

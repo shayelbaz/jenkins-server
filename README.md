@@ -23,7 +23,7 @@ helm install my-release ./chart/jenkins --set persistence.enabled=false
 
 ## Runnign in local cluster with persistence
 
-## TL;DR
+## Deploy release in local
 
 ```console
 helm install my-release ./chart/jenkins --set persistence.enabled=true --set persistence.enabled=true --set persistence.type=local
@@ -75,8 +75,9 @@ for subnet_id in $SUBNETS; do aws efs create-mount-target --file-system-id $EFS 
 More details about EKS storage [here](https://aws.amazon.com/premiumsupport/knowledge-center/eks-persistent-storage/)
 
 
-## TL;DR
+## Deploy release in EKS
 
 ```console
 helm install my-release ./chart/jenkins --set persistence.enabled=true --set persistence.enabled=true --set persistence.type=nfs --set persistence.nfs.csi.volumeHandle=$EFS
 ```
+
